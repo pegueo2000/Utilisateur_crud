@@ -2,11 +2,14 @@ package com.epo.gestiondesutilisateurs;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+
+import java.util.logging.Logger;
 
 public class MaBaseHelper extends SQLiteOpenHelper {
     private Context context;
@@ -60,5 +63,50 @@ public class MaBaseHelper extends SQLiteOpenHelper {
             Toast.makeText(context, "Succes", Toast.LENGTH_SHORT).show();
         }
         
+    }
+    Cursor readAllData(){
+        String query = "SELECT * FROM " + TABLE_NAME;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+        if (db != null){
+          cursor =  db.rawQuery(query,null);
+        }
+        return cursor;
+    }
+    void updateData(String user_id, String nom, String prenom, String age, String sexe, String profession, String telephone){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_NOM, nom);
+        cv.put(COLUMN_PRENOM, prenom);
+        cv.put(COLUMN_AGE, age);
+        cv.put(COLUMN_SEXE, sexe);
+        cv.put(COLUMN_PROFESSION, profession);
+        cv.put(COLUMN_TELEPHONE, telephone);
+        System.out.println("avant la mise à jour");
+        System.out.println("la valeur de l'id est " + user_id);
+        long result = db.update(TABLE_NAME,cv,"id=?",new String[]{user_id});
+        System.out.println(result);
+        System.out.println("après la mise à jour");
+        if (result == -1){
+            Toast.makeText(context, "Echec de la mise à jour", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            System.out.println("succès la mise à jour");
+            Toast.makeText(context, "Mise à jour reussi", Toast.LENGTH_SHORT).show();
+
+        }
+    }
+    void deleteOneRow (String user_id){
+        SQLiteDatabase db = this.getWritableDatabase();
+       long result = db.delete(TABLE_NAME,"id=?",new String[]{user_id});
+       if (result == -1){
+           Toast.makeText(context, "Echec de la suppression", Toast.LENGTH_SHORT).show();
+       }else {
+           Toast.makeText(context, "Supprimer avec succès", Toast.LENGTH_SHORT).show();
+       }
+    }
+    void deleteAllData(){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM "+ TABLE_NAME);
     }
 }
